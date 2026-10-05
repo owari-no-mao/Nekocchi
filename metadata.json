@@ -1,0 +1,6 @@
+{
+  "name": "ねこっち - にゃんこバーチャルペット",
+  "description": "レトロでかわいい猫のたまごっちライク育成ゲーム。毎日のお世話、ミニゲーム、多様な進化分岐と図鑑コレクションを楽しめます。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

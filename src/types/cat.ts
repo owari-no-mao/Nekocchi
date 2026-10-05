@@ -1,0 +1,253 @@
+export type CatStage = 'egg' | 'baby' | 'child' | 'adult' | 'legendary';
+
+export type CatEvolutionId =
+  | 'cat_egg'
+  | 'baby_fluff'
+  | 'child_playful'
+  | 'child_calm'
+  | 'child_glutton'
+  | 'adult_mike'
+  | 'adult_chatora'
+  | 'adult_kuro'
+  | 'adult_hachiware'
+  | 'adult_shiro'
+  | 'adult_siamese'
+  | 'adult_manekineko'
+  | 'adult_sorcerer'
+  | 'legend_royalty'
+  | 'legend_celestial';
+
+export interface CatSpeciesInfo {
+  id: CatEvolutionId;
+  name: string;
+  stage: CatStage;
+  title: string;
+  description: string;
+  personality: string;
+  favoriteFood: string;
+  evolutionHint: string;
+  unlockedHint: string;
+  furColor: string;
+  patternColor?: string;
+  eyeColor: string;
+  specialAccessory?: string;
+}
+
+export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
+  cat_egg: {
+    id: 'cat_egg',
+    name: 'ねこのたまご',
+    stage: 'egg',
+    title: '命のたまご',
+    description: 'ゆらゆら揺れるふしぎなたまご。温めたり優しく声をかけると…？',
+    personality: '未知数',
+    favoriteFood: 'あたたかいミルク',
+    evolutionHint: '画面をタップして温めるか、時間経過で孵化します。',
+    unlockedHint: 'ゲーム開始時',
+    furColor: '#FAF5FF',
+    patternColor: '#F3E8FF',
+    eyeColor: '#7C3AED',
+  },
+  baby_fluff: {
+    id: 'baby_fluff',
+    name: 'しろこねこ',
+    stage: 'baby',
+    title: 'あかちゃん期',
+    description: 'ふわふわの産毛に包まれた小さなこねこ。何にでも興味津々！',
+    personality: '甘えん坊',
+    favoriteFood: 'こねこ用ミルク',
+    evolutionHint: 'たまごから元気に誕生した最初の姿。',
+    unlockedHint: 'たまごが孵化する',
+    furColor: '#FFFFFF',
+    patternColor: '#F1F5F9',
+    eyeColor: '#38BDF8',
+  },
+  child_playful: {
+    id: 'child_playful',
+    name: 'やんちゃ三毛こ',
+    stage: 'child',
+    title: '活発なこども期',
+    description: '元気いっぱいで部屋中を走り回るこねこ。じゃらし遊びが大好き！',
+    personality: 'おてんば・好奇心旺盛',
+    favoriteFood: 'おさかなカリカリ',
+    evolutionHint: 'あかちゃん期にミニゲームをたくさん遊ぶと進化。',
+    unlockedHint: 'こねこ期に遊んだ回数が多い',
+    furColor: '#FFFFFF',
+    patternColor: '#EA580C',
+    eyeColor: '#16A34A',
+  },
+  child_calm: {
+    id: 'child_calm',
+    name: 'くろこねこ',
+    stage: 'child',
+    title: 'おとなしいこども期',
+    description: '物静かで観察好きなこねこ。日向ぼっこしながらじっと見つめてきます。',
+    personality: '慎重・おっとり',
+    favoriteFood: 'ささみウェットフード',
+    evolutionHint: '規則正しくブラッシングやトイレ掃除をして丁寧に育てると進化。',
+    unlockedHint: '清潔度としつけ度を高めに維持',
+    furColor: '#334155',
+    patternColor: '#1E293B',
+    eyeColor: '#FACC15',
+  },
+  child_glutton: {
+    id: 'child_glutton',
+    name: 'くいしんぼ茶トラこ',
+    stage: 'child',
+    title: '食いしん坊こども期',
+    description: 'ごはんの時間が近づくと足元にすり寄ってくる、まるまる太ったこねこ。',
+    personality: 'マイペース・大食い',
+    favoriteFood: 'ちゅ〜る',
+    evolutionHint: 'おやつやごはんをたっぷりあげて体重を増やすと進化。',
+    unlockedHint: '満腹度を高く保ち、おやつを与える',
+    furColor: '#FDBA74',
+    patternColor: '#EA580C',
+    eyeColor: '#854D0E',
+  },
+  adult_mike: {
+    id: 'adult_mike',
+    name: '三毛アスリート',
+    stage: 'adult',
+    title: '跳躍の達人',
+    description: '驚異的なジャンプ力と反射神経を持つ美しき三毛猫。高いところが定位置。',
+    personality: '勇敢・アクロバティック',
+    favoriteFood: 'マグロの切り身',
+    evolutionHint: '運動量（ミニゲーム回数）が極めて多く、元気よく育てられた証。',
+    unlockedHint: 'ミニゲーム高得点＆プレイ回数多数',
+    furColor: '#FFFFFF',
+    patternColor: '#C2410C',
+    eyeColor: '#15803D',
+  },
+  adult_chatora: {
+    id: 'adult_chatora',
+    name: 'ぽっちゃり茶トラ',
+    stage: 'adult',
+    title: 'もふもふの巨匠',
+    description: '香箱座りするとまるで巨大な焼きたてパン。撫でられると爆音でゴロゴロ鳴く。',
+    personality: '極上のおっとり・平和主義',
+    favoriteFood: '特盛りカリカリ＆ちゅ〜る',
+    evolutionHint: '体重が重く、満腹度をたっぷり維持した状態でおとなになると進化。',
+    unlockedHint: '体重4.5kg以上＆おやつ多め',
+    furColor: '#FB923C',
+    patternColor: '#C2410C',
+    eyeColor: '#A16207',
+  },
+  adult_kuro: {
+    id: 'adult_kuro',
+    name: 'インテリ黒猫',
+    stage: 'adult',
+    title: '夜の哲学者',
+    description: '金色の瞳が知的に輝く黒猫。いたずらはせず、飼い主の気持ちを完璧に察する。',
+    personality: '知的・礼儀正しい',
+    favoriteFood: '高級サーモンパテ',
+    evolutionHint: 'しつけ度を高く保ち、失敗（うんち放置など）を最小限にして育てると進化。',
+    unlockedHint: 'しつけ度80%以上＆お世話ミス0〜1回',
+    furColor: '#0F172A',
+    patternColor: '#1E293B',
+    eyeColor: '#EAB308',
+    specialAccessory: 'メガネ',
+  },
+  adult_hachiware: {
+    id: 'adult_hachiware',
+    name: 'おっとりハチワレ',
+    stage: 'adult',
+    title: '癒やしの福猫',
+    description: 'おでこの八の字模様が末広がりで縁起が良い。家族みんなに愛される性格。',
+    personality: '素直・人懐っこい',
+    favoriteFood: 'かつおぶしふりかけ',
+    evolutionHint: 'ごはん・遊び・ブラッシングをバランス良く毎日欠かさずお世話すると進化。',
+    unlockedHint: 'バランスの良いお世話スコア',
+    furColor: '#FFFFFF',
+    patternColor: '#1E293B',
+    eyeColor: '#0284C7',
+  },
+  adult_shiro: {
+    id: 'adult_shiro',
+    name: '白猫プリンセス',
+    stage: 'adult',
+    title: '気高き姫君',
+    description: '純白のシルキーな毛並みを持つ美猫。お気に入りのクッション以外には座らない。',
+    personality: 'ツンデレ・気品',
+    favoriteFood: 'プレミアムちゅ〜る',
+    evolutionHint: '清潔度を常にMAXに保ち、ちゅ〜るなど高級なおやつをたくさん与えると進化。',
+    unlockedHint: '清潔度90%以上＆ちゅ〜る大好き',
+    furColor: '#F8FAFC',
+    patternColor: '#E2E8F0',
+    eyeColor: '#3B82F6',
+    specialAccessory: 'ティアラリボン',
+  },
+  adult_siamese: {
+    id: 'adult_siamese',
+    name: 'シャムダンサー',
+    stage: 'adult',
+    title: 'しなやかなステップ',
+    description: '耳としっぽのポイントカラーが魅力的な貴公子。よくおしゃべりしてくれる。',
+    personality: '社交的・おしゃべり',
+    favoriteFood: 'チキン胸肉のボイル',
+    evolutionHint: '声をかけ（なでなで/ブラッシング）、コミュニケーションを極めると進化。',
+    unlockedHint: 'ブラッシング＆コミュニケーション重視',
+    furColor: '#FEF3C7',
+    patternColor: '#451A03',
+    eyeColor: '#2563EB',
+  },
+  adult_manekineko: {
+    id: 'adult_manekineko',
+    name: '福徳の招き猫',
+    stage: 'adult',
+    title: '吉兆の神使（シークレット）',
+    description: '前足を上げて幸運とお客さんを招く不思議な猫。持っている小判がキラキラ光る。',
+    personality: '大吉・慈愛',
+    favoriteFood: '鯛のお頭焼き',
+    evolutionHint: 'お世話ミスなし、連続ログイン3日以上、コインを100枚以上貯めた状態で進化。',
+    unlockedHint: 'お世話ミス0＆コイン100以上貯める',
+    furColor: '#FFFFFF',
+    patternColor: '#DC2626',
+    eyeColor: '#CA8A04',
+    specialAccessory: '千客万来の小判と鈴',
+  },
+  adult_sorcerer: {
+    id: 'adult_sorcerer',
+    name: '星詠みマジカルネコ',
+    stage: 'adult',
+    title: '夜空の魔導士（シークレット）',
+    description: '星空の夜に特別な愛情で育てられた魔法猫。しっぽの先から星屑の光がこぼれる。',
+    personality: 'ミステリアス・夢見がち',
+    favoriteFood: 'こんぺいとうミルク',
+    evolutionHint: 'でんきを消した夜の時間帯にお世話を重ね、知性とごきげんをMAXにすると進化。',
+    unlockedHint: '夜間のお世話＆知性とごきげん90%以上',
+    furColor: '#312E81',
+    patternColor: '#4338CA',
+    eyeColor: '#F43F5E',
+    specialAccessory: '星のとんがり帽子',
+  },
+  legend_royalty: {
+    id: 'legend_royalty',
+    name: 'キングライオンネコ',
+    stage: 'legendary',
+    title: '伝説の王者',
+    description: '立派なたてがみと黄金の王冠を戴く百獣のネコ王。威厳に満ちているが甘えん坊。',
+    personality: '誇り高き王者',
+    favoriteFood: '極上特大ローストビーフ',
+    evolutionHint: '成猫になってから5日以上大切に育て、ステータスを極限まで高めると覚醒。',
+    unlockedHint: '成猫で長期育成＆全ステータス高水準',
+    furColor: '#F59E0B',
+    patternColor: '#B45309',
+    eyeColor: '#10B981',
+    specialAccessory: '黄金の王冠とマント',
+  },
+  legend_celestial: {
+    id: 'legend_celestial',
+    name: '月影の天翼ネコ',
+    stage: 'legendary',
+    title: '天界の守護神',
+    description: '背中に光る小さな翼を持つ伝説の神猫。見守ってくれるだけで幸せになれる。',
+    personality: '神聖・守護者',
+    favoriteFood: '天の川のしずく',
+    evolutionHint: 'シークレット猫からさらに愛情を深め、デイリー皆勤賞を達成すると覚醒。',
+    unlockedHint: 'シークレット成猫から覚醒進化',
+    furColor: '#E0E7FF',
+    patternColor: '#818CF8',
+    eyeColor: '#A855F7',
+    specialAccessory: '光の翼とハローリング',
+  },
+};
