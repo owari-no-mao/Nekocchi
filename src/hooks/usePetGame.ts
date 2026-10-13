@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { PetGameState, ActiveModal, ShellColorId, LcdBacklightId } from '../types/game';
+import { PetGameState, ActiveModal, ShellColorId, LcdBacklightId, CatMemoryEntry } from '../types/game';
 import { CatEvolutionId, CAT_SPECIES } from '../types/cat';
 import { loadSavedGame, saveGameState, resetGameStorage } from '../utils/storage';
 import { checkEvolution } from '../utils/evolution';
@@ -9,6 +9,16 @@ export function usePetGame() {
   const [state, setState] = useState<PetGameState>(loadSavedGame);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [selectedMenuIdx, setSelectedMenuIdx] = useState<number | null>(null);
+  const [actionFeedback, setActionFeedback] = useState<string | null>(null);
+  const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showFeedback = useCallback((msg: string) => {
+    setActionFeedback(msg);
+    if (feedbackTimerRef.current) clearTimeout(feedbackTimerRef.current);
+    feedbackTimerRef.current = setTimeout(() => {
+      setActionFeedback(null);
+    }, 2200);
+  }, []);
 
   // For evolution celebration
   const [evolutionPending, setEvolutionPending] = useState<{
@@ -117,13 +127,71 @@ export function usePetGame() {
       const allDone = updatedTasks.every((t) => t.completed);
       const totalBonus = coinsBonus + (allDone ? 40 : 0); // 40 extra for all clear!
 
+      let newMemories = prev.memories || [];
+      if (allDone && !prev.dailyTasks.every((t) => t.completed)) {
+        const entry: CatMemoryEntry = {
+          id: `mem_task_${Date.now()}`,
+          timestamp: Date.now(),
+          dateStr: prev.currentDateStr,
+          inGameDay: prev.ageDays,
+          inGameHour: prev.inGameHour,
+          category: 'care',
+          title: '今日のはなまるお世話を達成！',
+          story: 'ごはん、お掃除、ブラッシングなど今日のお世話ノルマを全達成！花丸スタンプをもらって満足そうに喉を鳴らしています。',
+          catId: prev.catId,
+          catName: prev.catName,
+          weight: prev.weight,
+          sticker: '💮',
+          photoUrl: CAT_SPECIES[prev.catId]?.aiImageUrl,
+        };
+        newMemories = [entry, ...newMemories].slice(0, 50);
+      }
+
       return {
         ...prev,
         dailyTasks: updatedTasks,
         coins: prev.coins + totalBonus,
+        memories: newMemories,
       };
     });
   }, []);
+
+  // Helper to append a memory entry
+  const addMemoryRecord = useCallback(
+    (
+      category: CatMemoryEntry['category'],
+      title: string,
+      story: string,
+      sticker: string,
+      customCatId?: CatEvolutionId,
+      customWeight?: number
+    ) => {
+      setState((prev) => {
+        const catId = customCatId || prev.catId;
+        const species = CAT_SPECIES[catId];
+        const newEntry: CatMemoryEntry = {
+          id: `mem_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          timestamp: Date.now(),
+          dateStr: prev.currentDateStr,
+          inGameDay: prev.ageDays,
+          inGameHour: prev.inGameHour,
+          category,
+          title,
+          story,
+          catId,
+          catName: prev.catName,
+          weight: customWeight ?? prev.weight,
+          sticker,
+          photoUrl: species?.aiImageUrl,
+        };
+        return {
+          ...prev,
+          memories: [newEntry, ...(prev.memories || [])].slice(0, 50),
+        };
+      });
+    },
+    []
+  );
 
   // Check evolution after actions
   const triggerEvolutionCheck = useCallback(() => {
@@ -143,6 +211,23 @@ export function usePetGame() {
           ? prev.unlockedZukan
           : [...prev.unlockedZukan, nextId];
 
+        // Create evolution memory diary entry
+        const evoMemory: CatMemoryEntry = {
+          id: `mem_evo_${Date.now()}`,
+          timestamp: Date.now(),
+          dateStr: prev.currentDateStr,
+          inGameDay: prev.ageDays,
+          inGameHour: prev.inGameHour,
+          category: 'evolution',
+          title: `【進化の記録】${nextSpecies.name}へ！`,
+          story: `${result.reason}（体重: ${prev.weight.toFixed(1)}kg / 生後${prev.ageDays}日目）`,
+          catId: nextId,
+          catName: prev.catName,
+          weight: prev.weight,
+          sticker: nextSpecies.stage === 'legendary' ? '👑' : '✨',
+          photoUrl: nextSpecies.aiImageUrl,
+        };
+
         return {
           ...prev,
           catId: nextId,
@@ -154,6 +239,7 @@ export function usePetGame() {
           evolutionHistory: [...prev.evolutionHistory, nextId],
           unlockedZukan: newUnlocked,
           coins: prev.coins + 30, // evolution reward
+          memories: [evoMemory, ...(prev.memories || [])].slice(0, 50),
         };
       }
       return prev;
@@ -170,6 +256,7 @@ export function usePetGame() {
         soundManager.playHatch();
         // Hatch into baby
         const nextId: CatEvolutionId = 'baby_fluff';
+        const nextSpecies = CAT_SPECIES[nextId];
         const newUnlocked = prev.unlockedZukan.includes(nextId)
           ? prev.unlockedZukan
           : [...prev.unlockedZukan, nextId];
@@ -179,6 +266,22 @@ export function usePetGame() {
           newCatId: nextId,
           reason: 'たまごがパカッと割れて、元気なしろこねこが生まれました！',
         });
+
+        const birthMemory: CatMemoryEntry = {
+          id: `mem_birth_${Date.now()}`,
+          timestamp: Date.now(),
+          dateStr: prev.currentDateStr,
+          inGameDay: prev.ageDays,
+          inGameHour: prev.inGameHour,
+          category: 'evolution',
+          title: 'しろこねこが元気に誕生！',
+          story: 'たまごを優しく温めたことで殻がパカッと割れ、小さな白い産毛をまとったしろこねこが顔を出しました！今日から一緒に暮らそうね。',
+          catId: nextId,
+          catName: prev.catName,
+          weight: 0.5,
+          sticker: '🐣',
+          photoUrl: nextSpecies.aiImageUrl,
+        };
 
         return {
           ...prev,
@@ -190,6 +293,7 @@ export function usePetGame() {
           happiness: 100,
           hunger: 80,
           cleanliness: 100,
+          memories: [birthMemory, ...(prev.memories || [])].slice(0, 50),
         };
       }
       return { ...prev, eggTaps: nextTaps };
@@ -447,6 +551,22 @@ export function usePetGame() {
           ? prev.unlockedZukan
           : [...prev.unlockedZukan, nextId];
 
+        const evoMemory: CatMemoryEntry = {
+          id: `mem_evo_${Date.now()}`,
+          timestamp: Date.now(),
+          dateStr: prev.currentDateStr,
+          inGameDay: forcedAgeState.ageDays,
+          inGameHour: prev.inGameHour,
+          category: 'evolution',
+          title: `【進化の記録】${nextSpecies.name}へ！`,
+          story: `${result.reason}（体重: ${forcedAgeState.weight.toFixed(1)}kg / 生後${forcedAgeState.ageDays}日目）`,
+          catId: nextId,
+          catName: prev.catName,
+          weight: forcedAgeState.weight,
+          sticker: nextSpecies.stage === 'legendary' ? '👑' : '✨',
+          photoUrl: nextSpecies.aiImageUrl,
+        };
+
         return {
           ...forcedAgeState,
           catId: nextId,
@@ -454,11 +574,21 @@ export function usePetGame() {
           hatched: true,
           evolutionHistory: [...prev.evolutionHistory, nextId],
           unlockedZukan: newUnlocked,
+          memories: [evoMemory, ...(prev.memories || [])].slice(0, 50),
         };
       }
       return prev;
     });
   }, []);
+
+  // Add custom user memo diary entry
+  const handleAddUserMemory = useCallback(
+    (storyText: string, sticker: string = '🐾') => {
+      addMemoryRecord('user', '飼い主のひとこと日記', storyText, sticker);
+      showFeedback('📖 思い出日記を記録しました！');
+    },
+    [addMemoryRecord, showFeedback]
+  );
 
   // Rename Cat
   const handleRename = useCallback((newName: string) => {
@@ -490,6 +620,75 @@ export function usePetGame() {
     setActiveModal(null);
   }, []);
 
+  // --- Instant 1-Tap Handlers (MVP: No double-click or modal required!) ---
+  const handleInstantMeal = useCallback(() => {
+    soundManager.playEat();
+    setState((prev) => ({
+      ...prev,
+      hunger: Math.min(100, prev.hunger + 35),
+      weight: Math.round((prev.weight + 0.1) * 10) / 10,
+      lifetimeMealsGiven: prev.lifetimeMealsGiven + 1,
+      happiness: Math.min(100, prev.happiness + 5),
+    }));
+    completeTask('task_meal');
+    showFeedback('🍙 カリカリをもぐもぐ！ 満腹UP');
+    triggerEvolutionCheck();
+  }, [completeTask, showFeedback, triggerEvolutionCheck]);
+
+  const handleInstantSnack = useCallback(() => {
+    soundManager.playEat();
+    soundManager.playPurr();
+    setState((prev) => ({
+      ...prev,
+      happiness: Math.min(100, prev.happiness + 30),
+      hunger: Math.min(100, prev.hunger + 10),
+      weight: Math.round((prev.weight + 0.1) * 10) / 10,
+      lifetimeSnacksGiven: prev.lifetimeSnacksGiven + 1,
+    }));
+    completeTask('task_snack');
+    showFeedback('🐟 ちゅ〜るペロペロ！ ごきげんUP');
+    triggerEvolutionCheck();
+  }, [completeTask, showFeedback, triggerEvolutionCheck]);
+
+  const handleInstantClean = useCallback(() => {
+    soundManager.playClean();
+    setState((prev) => ({
+      ...prev,
+      poopCount: 0,
+      cleanliness: Math.min(100, prev.cleanliness + 35),
+      happiness: Math.min(100, prev.happiness + 10),
+    }));
+    completeTask('task_toilet');
+    showFeedback('🧹 トイレそうじ完了！ ピカピカ✨');
+    triggerEvolutionCheck();
+  }, [completeTask, showFeedback, triggerEvolutionCheck]);
+
+  const handleInstantPet = useCallback(() => {
+    soundManager.playPurr();
+    soundManager.playMeow('happy');
+    setState((prev) => ({
+      ...prev,
+      happiness: Math.min(100, prev.happiness + 20),
+      cleanliness: Math.min(100, prev.cleanliness + 15),
+      lifetimeBrushCount: prev.lifetimeBrushCount + 1,
+    }));
+    completeTask('task_brush');
+    showFeedback('✨ ゴロゴロ… 喉を鳴らして甘えています♥');
+    triggerEvolutionCheck();
+  }, [completeTask, showFeedback, triggerEvolutionCheck]);
+
+  const handleInstantHeal = useCallback(() => {
+    soundManager.playConfirm();
+    setState((prev) => ({
+      ...prev,
+      isSick: false,
+      sicknessType: null,
+      happiness: Math.min(100, prev.happiness + 30),
+      hunger: Math.max(60, prev.hunger),
+    }));
+    showFeedback('💊 お薬を飲んで元気になりました！');
+  }, [showFeedback]);
+
   // Sound Toggle
   const handleToggleSound = useCallback(() => {
     setState((prev) => {
@@ -505,6 +704,7 @@ export function usePetGame() {
     setActiveModal,
     selectedMenuIdx,
     setSelectedMenuIdx,
+    actionFeedback,
     evolutionPending,
     setEvolutionPending,
     handleEggTap,
@@ -517,12 +717,18 @@ export function usePetGame() {
     handleScold,
     handlePraise,
     handleHeal,
+    handleInstantMeal,
+    handleInstantSnack,
+    handleInstantClean,
+    handleInstantPet,
+    handleInstantHeal,
     handleMiniGameComplete,
     handleToggleLight,
     handleExecuteSelectedIcon,
     handleAdvanceHours,
     handleAdvanceDays,
     handleForceEvolve,
+    handleAddUserMemory,
     handleRename,
     handleBuyItem,
     handleSetShell,

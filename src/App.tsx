@@ -1,11 +1,11 @@
 import React from 'react';
 import { usePetGame } from './hooks/usePetGame';
 import { TopNav } from './components/TopNav';
-import { TamagotchiShell, MENU_ICONS } from './components/TamagotchiShell';
-import { CareMenu } from './components/CareMenu';
+import { TamagotchiShell } from './components/TamagotchiShell';
 import { MiniGames } from './components/MiniGames';
 import { StatusModal } from './components/StatusModal';
 import { ZukanModal } from './components/ZukanModal';
+import { EvolutionTreeModal } from './components/EvolutionTreeModal';
 import { DailyCareModal } from './components/DailyCareModal';
 import { ShopModal } from './components/ShopModal';
 import { ClockControlModal } from './components/ClockControlModal';
@@ -18,26 +18,21 @@ export default function App() {
     state,
     activeModal,
     setActiveModal,
-    selectedMenuIdx,
-    setSelectedMenuIdx,
+    actionFeedback,
     evolutionPending,
     setEvolutionPending,
     handleEggTap,
-    handleDirectPetTouch,
-    handleFeedMeal,
-    handleFeedSnack,
-    handleCleanToilet,
-    handleBath,
-    handleBrush,
-    handleScold,
-    handlePraise,
-    handleHeal,
+    handleInstantMeal,
+    handleInstantSnack,
+    handleInstantClean,
+    handleInstantPet,
+    handleInstantHeal,
     handleMiniGameComplete,
     handleToggleLight,
-    handleExecuteSelectedIcon,
     handleAdvanceHours,
     handleAdvanceDays,
     handleForceEvolve,
+    handleAddUserMemory,
     handleRename,
     handleBuyItem,
     handleSetShell,
@@ -47,11 +42,10 @@ export default function App() {
   } = usePetGame();
 
   const currentSpecies = CAT_SPECIES[state.catId];
-  const completedTasksCount = state.dailyTasks.filter((t) => t.completed).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-800 flex flex-col font-sans selection:bg-amber-200">
-      {/* Top Bar Contract compliant Header */}
+    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-950">
+      {/* Sleek Top Bar Contract Header */}
       <TopNav
         coins={state.coins}
         streakDays={state.streakDays}
@@ -61,321 +55,172 @@ export default function App() {
         onResetGame={handleResetGame}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-6 sm:py-8 flex flex-col items-center justify-center">
-        {/* Desktop 3-column layout (Cards & Tamagotchi Shell) */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start justify-center">
+      {/* Main Play Viewport (MVP Focused & Stylish) */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 py-4 sm:py-8 flex flex-col items-center justify-center">
+        <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
           
-          {/* Left Column (Desktop): Daily Care & Routine Widget */}
-          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4">
-            {/* Daily Care Card */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-                <span className="font-pixel text-xs font-bold text-slate-800">
-                  📅 今日のお世話ノルマ
-                </span>
-                <span className="text-[11px] font-pixel text-amber-600 font-bold">
-                  {completedTasksCount} / {state.dailyTasks.length}
-                </span>
-              </div>
-
-              <div className="space-y-1.5 mb-3">
-                {state.dailyTasks.map((t) => (
-                  <div
-                    key={t.id}
-                    className={`flex items-center justify-between text-xs p-1.5 rounded-lg ${
-                      t.completed ? 'bg-emerald-50 text-emerald-800' : 'text-slate-600'
-                    }`}
-                  >
-                    <span className="truncate">{t.completed ? '✓ ' : '○ '}{t.label}</span>
-                    <span className="font-pixel text-[10px] text-amber-600">+{t.rewardCoins}🪙</span>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => {
-                  soundManager.playSelect();
-                  setActiveModal('daily_care');
-                }}
-                className="w-full py-1.5 text-xs text-center font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg transition-colors border border-slate-200"
-              >
-                お世話手帳を開く →
-              </button>
-            </div>
-
-            {/* Quick Care Actions Palette */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-              <div className="font-pixel text-xs font-bold text-slate-800 mb-2 pb-1 border-b border-slate-100">
-                ⚡ クイックお世話
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <button
-                  onClick={() => {
-                    soundManager.playSelect();
-                    setActiveModal('menu_food');
-                  }}
-                  className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 flex flex-col items-center gap-1 transition-all"
-                >
-                  <span className="text-xl">🍙</span>
-                  <span className="font-pixel text-[11px]">ごはん・おやつ</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    soundManager.playBrush();
-                    handleBrush();
-                  }}
-                  className="p-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 flex flex-col items-center gap-1 transition-all"
-                >
-                  <span className="text-xl">✨</span>
-                  <span className="font-pixel text-[11px]">ブラッシング</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    soundManager.playClean();
-                    handleCleanToilet();
-                  }}
-                  className="p-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 text-cyan-900 border border-cyan-200 flex flex-col items-center gap-1 transition-all"
-                >
-                  <span className="text-xl">🧹</span>
-                  <span className="font-pixel text-[11px]">トイレ掃除</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    soundManager.playSelect();
-                    setActiveModal('menu_play');
-                  }}
-                  className="p-2 rounded-xl bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200 flex flex-col items-center gap-1 transition-all"
-                >
-                  <span className="text-xl">🎾</span>
-                  <span className="font-pixel text-[11px]">ミニゲーム</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Center Column: The Virtual Pet Tamagotchi Machine */}
-          <div className="col-span-1 lg:col-span-6 flex flex-col items-center justify-center">
+          {/* Virtual Pet Hardware Device (Center of Play) */}
+          <div className="flex flex-col items-center">
             <TamagotchiShell
               state={state}
-              onSelectAction={(idx) => setSelectedMenuIdx(idx)}
-              onExecuteAction={() => {
-                if (selectedMenuIdx !== null) {
-                  handleExecuteSelectedIcon(selectedMenuIdx);
-                }
-              }}
-              onCancelAction={() => {
-                setSelectedMenuIdx(null);
-                setActiveModal(null);
-              }}
-              onDirectPetTouch={handleDirectPetTouch}
+              onFeedMeal={handleInstantMeal}
+              onFeedSnack={handleInstantSnack}
+              onCleanToilet={handleInstantClean}
+              onPetOrBrush={handleInstantPet}
+              onToggleLight={handleToggleLight}
+              onPlayGame={() => setActiveModal('menu_play')}
+              onHeal={handleInstantHeal}
               onDirectEggTap={handleEggTap}
+              onOpenEvolutionTree={() => setActiveModal('evolution_tree')}
+              actionFeedback={actionFeedback}
             />
 
-            {/* Hardware instruction key guide */}
-            <div className="mt-3 flex items-center justify-center gap-4 text-xs text-slate-500 font-pixel">
-              <span>[A] メニュー選択</span>
+            {/* Quick Authentic Tamagotchi Hardware Control Legend */}
+            <div className="mt-2.5 text-center text-xs font-pixel text-slate-400 flex items-center gap-3">
+              <span>【A】えらぶ</span>
               <span aria-hidden="true">·</span>
-              <span>[B] 決定 / なでる</span>
+              <span className="text-amber-300 font-bold">【B】即実行 / なでる</span>
               <span aria-hidden="true">·</span>
-              <span>[C] もどる</span>
+              <span>【C】もどる</span>
             </div>
           </div>
 
-          {/* Right Column (Desktop): Pet Identity & Vitals Snapshot */}
-          <div className="hidden lg:flex lg:col-span-3 flex-col gap-4">
-            {/* Identity & Evolution Stage Card */}
-            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
-                <div>
-                  <div className="font-pixel text-xs text-amber-600">{currentSpecies.title}</div>
-                  <h3 className="font-bold text-sm text-slate-900">{state.catName} ({currentSpecies.name})</h3>
+          {/* Sleek MVP Companion Card (Character, Live Vitals, Next Evolution Shortcut) */}
+          <div className="w-full max-w-sm flex flex-col gap-3">
+            {/* Identity & 3D Collectible Figure Card */}
+            <div className="bg-slate-800/90 rounded-3xl p-4 sm:p-5 border border-slate-700/80 shadow-xl backdrop-blur-md relative overflow-hidden">
+              <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-700/60">
+                <div className="overflow-hidden">
+                  <div className="font-pixel text-xs text-amber-400 font-bold truncate">
+                    {currentSpecies.title}
+                  </div>
+                  <h3 className="font-black text-lg text-white font-pixel truncate">
+                    {state.catName} <span className="text-xs text-slate-400 font-normal">({currentSpecies.name})</span>
+                  </h3>
                 </div>
-                <span className="text-2xl">
-                  {currentSpecies.stage === 'egg' ? '🥚' : currentSpecies.stage === 'baby' ? '🐾' : currentSpecies.stage === 'child' ? '🐈' : '👑'}
-                </span>
+
+                <button
+                  onClick={() => {
+                    soundManager.playSelect();
+                    setActiveModal('menu_status');
+                  }}
+                  className="px-2.5 py-1 bg-slate-700 hover:bg-slate-650 text-slate-300 hover:text-white rounded-lg text-xs font-pixel border border-slate-600 transition-colors shrink-0"
+                >
+                  手帳 ✏️
+                </button>
               </div>
 
-              {/* Vitals Bars Snapshot */}
-              <div className="space-y-2 mb-3 text-xs">
+              {/* 3D Collectible Figure Showcase (If image available) */}
+              {currentSpecies.aiImageUrl && (
+                <div className="relative w-full h-44 rounded-2xl overflow-hidden mb-3 border border-amber-400/30 shadow-inner group bg-slate-950">
+                  <img
+                    src={currentSpecies.aiImageUrl}
+                    alt={currentSpecies.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none" />
+                  <span className="absolute bottom-2 left-2 text-[10px] font-pixel bg-slate-900/90 text-amber-300 px-2 py-0.5 rounded-full border border-amber-400/30">
+                    ★ AI 3D COLLECTIBLE
+                  </span>
+                  <span className="absolute top-2 right-2 text-xs font-pixel bg-slate-900/80 text-slate-300 px-2 py-0.5 rounded-md">
+                    {state.ageDays}日目 ({state.weight.toFixed(1)}kg)
+                  </span>
+                </div>
+              )}
+
+              {/* Live Vitals Bars */}
+              <div className="space-y-2.5 mb-4">
                 <div>
-                  <div className="flex justify-between text-[11px] text-slate-600 mb-0.5">
-                    <span>まんぷく度</span>
-                    <span className="font-pixel">{state.hunger}%</span>
+                  <div className="flex justify-between text-xs font-pixel mb-1">
+                    <span className="text-slate-300">🍙 まんぷく度</span>
+                    <span className="text-amber-400 font-bold">{state.hunger}%</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-700">
                     <div
-                      className={`h-full ${state.hunger > 50 ? 'bg-emerald-500' : 'bg-red-400'}`}
+                      className={`h-full transition-all duration-300 ${state.hunger > 40 ? 'bg-emerald-500' : 'bg-red-500'}`}
                       style={{ width: `${state.hunger}%` }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-[11px] text-slate-600 mb-0.5">
-                    <span>ごきげん</span>
-                    <span className="font-pixel">{state.happiness}%</span>
+                  <div className="flex justify-between text-xs font-pixel mb-1">
+                    <span className="text-slate-300">♪ ごきげん</span>
+                    <span className="text-amber-400 font-bold">{state.happiness}%</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-700">
                     <div
-                      className={`h-full ${state.happiness > 50 ? 'bg-amber-400' : 'bg-red-400'}`}
+                      className={`h-full transition-all duration-300 ${state.happiness > 40 ? 'bg-amber-400' : 'bg-red-500'}`}
                       style={{ width: `${state.happiness}%` }}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-[11px] text-slate-600 mb-0.5">
-                    <span>せいけつ度</span>
-                    <span className="font-pixel">{state.cleanliness}%</span>
+                  <div className="flex justify-between text-xs font-pixel mb-1">
+                    <span className="text-slate-300">✨ せいけつ度</span>
+                    <span className="text-amber-400 font-bold">{state.cleanliness}%</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-700">
                     <div
-                      className={`h-full ${state.cleanliness > 50 ? 'bg-sky-400' : 'bg-red-400'}`}
+                      className={`h-full transition-all duration-300 ${state.cleanliness > 40 ? 'bg-sky-400' : 'bg-red-500'}`}
                       style={{ width: `${state.cleanliness}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] text-slate-600 leading-relaxed mb-3">
-                <span className="font-bold text-slate-800">💡 成長のヒント: </span>
-                {currentSpecies.evolutionHint}
-              </div>
+              {/* Direct Evolution Tree CTA */}
+              <button
+                onClick={() => {
+                  soundManager.playConfirm();
+                  setActiveModal('evolution_tree');
+                }}
+                className="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-98 text-white rounded-2xl font-pixel text-xs font-black shadow-lg flex items-center justify-center gap-2 border border-emerald-400/40 transition-all cursor-pointer"
+              >
+                <span>🌿</span>
+                <span>進化系統ツリーで次の候補を見る →</span>
+              </button>
+            </div>
 
+            {/* Quick MVP Shortcuts */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  soundManager.playSelect();
+                  setActiveModal('daily_care');
+                }}
+                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white rounded-xl text-xs font-pixel border border-slate-700 transition-colors flex items-center justify-center gap-1.5"
+              >
+                📖 思い出手帳
+              </button>
               <button
                 onClick={() => {
                   soundManager.playSelect();
                   setActiveModal('zukan');
                 }}
-                className="w-full py-1.5 text-xs text-center font-medium bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-lg transition-colors border border-amber-200"
+                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white rounded-xl text-xs font-pixel border border-slate-700 transition-colors flex items-center justify-center gap-1.5"
               >
-                進化図鑑 (全15種) を見る →
-              </button>
-            </div>
-
-            {/* Quick Actions (Shop & Fast-Forward) */}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  soundManager.playSelect();
-                  setActiveModal('shop');
-                }}
-                className="flex-1 p-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-pixel text-slate-700 flex items-center justify-center gap-1 shadow-sm transition-all"
-              >
-                🛍️ ショップ
+                📖 図鑑
               </button>
               <button
                 onClick={() => {
                   soundManager.playSelect();
                   setActiveModal('time_machine');
                 }}
-                className="flex-1 p-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-pixel text-amber-700 flex items-center justify-center gap-1 shadow-sm transition-all"
+                className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-750 text-amber-300 hover:text-amber-200 rounded-xl text-xs font-pixel border border-amber-500/30 transition-colors flex items-center justify-center gap-1"
               >
                 ⏳ 時間操作
               </button>
             </div>
           </div>
         </div>
-
-        {/* Mobile Quick Action Buttons Bar */}
-        <div className="lg:hidden flex flex-wrap items-center justify-center gap-2 mt-4 w-full max-w-sm">
-          <button
-            onClick={() => {
-              soundManager.playSelect();
-              setActiveModal('daily_care');
-            }}
-            className="flex-1 py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-pixel text-slate-700 shadow-sm"
-          >
-            📅 お世話手帳
-          </button>
-          <button
-            onClick={() => {
-              soundManager.playSelect();
-              setActiveModal('zukan');
-            }}
-            className="flex-1 py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-pixel text-slate-700 shadow-sm"
-          >
-            📖 進化図鑑
-          </button>
-          <button
-            onClick={() => {
-              soundManager.playSelect();
-              setActiveModal('menu_play');
-            }}
-            className="flex-1 py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-pixel text-slate-700 shadow-sm"
-          >
-            🎾 ミニゲーム
-          </button>
-        </div>
       </main>
 
       {/* Floating Modals System */}
       {activeModal && (
-        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          {activeModal === 'menu_food' && (
-            <CareMenu
-              type="food"
-              coins={state.coins}
-              onFeedMeal={handleFeedMeal}
-              onFeedSnack={handleFeedSnack}
-              onCleanToilet={handleCleanToilet}
-              onBath={handleBath}
-              onScold={handleScold}
-              onPraise={handlePraise}
-              onHeal={handleHeal}
-              onClose={() => setActiveModal(null)}
-            />
-          )}
-
-          {activeModal === 'menu_clean' && (
-            <CareMenu
-              type="clean"
-              coins={state.coins}
-              onFeedMeal={handleFeedMeal}
-              onFeedSnack={handleFeedSnack}
-              onCleanToilet={handleCleanToilet}
-              onBath={handleBath}
-              onScold={handleScold}
-              onPraise={handlePraise}
-              onHeal={handleHeal}
-              onClose={() => setActiveModal(null)}
-            />
-          )}
-
-          {activeModal === 'menu_discipline' && (
-            <CareMenu
-              type="discipline"
-              coins={state.coins}
-              onFeedMeal={handleFeedMeal}
-              onFeedSnack={handleFeedSnack}
-              onCleanToilet={handleCleanToilet}
-              onBath={handleBath}
-              onScold={handleScold}
-              onPraise={handlePraise}
-              onHeal={handleHeal}
-              onClose={() => setActiveModal(null)}
-            />
-          )}
-
-          {activeModal === 'menu_medicine' && (
-            <CareMenu
-              type="medicine"
-              coins={state.coins}
-              onFeedMeal={handleFeedMeal}
-              onFeedSnack={handleFeedSnack}
-              onCleanToilet={handleCleanToilet}
-              onBath={handleBath}
-              onScold={handleScold}
-              onPraise={handlePraise}
-              onHeal={handleHeal}
-              onClose={() => setActiveModal(null)}
-            />
-          )}
-
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-50 flex items-center justify-center p-3">
           {activeModal === 'menu_play' && (
             <MiniGames
               onGameComplete={(score, coins) => {
@@ -397,6 +242,14 @@ export default function App() {
           {activeModal === 'zukan' && (
             <ZukanModal
               unlockedList={state.unlockedZukan}
+              onOpenEvolutionTree={() => setActiveModal('evolution_tree')}
+              onClose={() => setActiveModal(null)}
+            />
+          )}
+
+          {activeModal === 'evolution_tree' && (
+            <EvolutionTreeModal
+              state={state}
               onClose={() => setActiveModal(null)}
             />
           )}
@@ -406,8 +259,10 @@ export default function App() {
               tasks={state.dailyTasks}
               streakDays={state.streakDays}
               history={state.careHistory}
+              memories={state.memories}
               todayStr={state.currentDateStr}
               onClaimTask={() => {}}
+              onAddUserMemory={handleAddUserMemory}
               onClose={() => setActiveModal(null)}
             />
           )}
@@ -450,8 +305,8 @@ export default function App() {
       )}
 
       {/* Footer */}
-      <footer className="w-full text-center py-4 border-t border-slate-200/60 text-xs text-slate-500 font-pixel">
-        ねこっち · レトロにゃんこバーチャルペット © 2026
+      <footer className="w-full text-center py-3 border-t border-slate-800 text-xs text-slate-500 font-pixel">
+        ねこっち · バーチャルペット MVP © 2026
       </footer>
     </div>
   );

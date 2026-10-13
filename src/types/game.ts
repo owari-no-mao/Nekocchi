@@ -16,6 +16,22 @@ export interface CareHistoryEntry {
   allClear: boolean;
 }
 
+export interface CatMemoryEntry {
+  id: string;
+  timestamp: number;
+  dateStr: string; // YYYY-MM-DD
+  inGameDay: number;
+  inGameHour: number;
+  category: 'evolution' | 'growth' | 'care' | 'health' | 'play' | 'user';
+  title: string;
+  story: string;
+  catId: CatEvolutionId;
+  catName: string;
+  weight: number;
+  sticker: string;
+  photoUrl?: string;
+}
+
 export interface ShopItem {
   id: string;
   name: string;
@@ -111,6 +127,7 @@ export interface PetGameState {
   streakDays: number;
   dailyTasks: DailyCareTask[];
   careHistory: CareHistoryEntry[];
+  memories: CatMemoryEntry[];
 
   // Sound settings
   soundEnabled: boolean;
@@ -125,6 +142,7 @@ export type ActiveModal =
   | 'menu_medicine'
   | 'menu_status'
   | 'zukan'
+  | 'evolution_tree'
   | 'daily_care'
   | 'shop'
   | 'time_machine'

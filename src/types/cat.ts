@@ -1,3 +1,9 @@
+import catBabyWhiteImg from '../assets/images/cat_baby_white_1791206982378.jpg';
+import catMikeAthleteImg from '../assets/images/cat_mike_athlete_1791206995511.jpg';
+import catChatoraFluffImg from '../assets/images/cat_chatora_fluff_1791207008087.jpg';
+import catKuroScholarImg from '../assets/images/cat_kuro_scholar_1791207020523.jpg';
+import catManekiNekoImg from '../assets/images/cat_maneki_neko_1791207031481.jpg';
+
 export type CatStage = 'egg' | 'baby' | 'child' | 'adult' | 'legendary';
 
 export type CatEvolutionId =
@@ -31,6 +37,7 @@ export interface CatSpeciesInfo {
   patternColor?: string;
   eyeColor: string;
   specialAccessory?: string;
+  aiImageUrl?: string;
 }
 
 export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
@@ -61,6 +68,7 @@ export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
     furColor: '#FFFFFF',
     patternColor: '#F1F5F9',
     eyeColor: '#38BDF8',
+    aiImageUrl: catBabyWhiteImg,
   },
   child_playful: {
     id: 'child_playful',
@@ -117,6 +125,7 @@ export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
     furColor: '#FFFFFF',
     patternColor: '#C2410C',
     eyeColor: '#15803D',
+    aiImageUrl: catMikeAthleteImg,
   },
   adult_chatora: {
     id: 'adult_chatora',
@@ -131,6 +140,7 @@ export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
     furColor: '#FB923C',
     patternColor: '#C2410C',
     eyeColor: '#A16207',
+    aiImageUrl: catChatoraFluffImg,
   },
   adult_kuro: {
     id: 'adult_kuro',
@@ -146,6 +156,7 @@ export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
     patternColor: '#1E293B',
     eyeColor: '#EAB308',
     specialAccessory: 'メガネ',
+    aiImageUrl: catKuroScholarImg,
   },
   adult_hachiware: {
     id: 'adult_hachiware',
@@ -204,6 +215,7 @@ export const CAT_SPECIES: Record<CatEvolutionId, CatSpeciesInfo> = {
     patternColor: '#DC2626',
     eyeColor: '#CA8A04',
     specialAccessory: '千客万来の小判と鈴',
+    aiImageUrl: catManekiNekoImg,
   },
   adult_sorcerer: {
     id: 'adult_sorcerer',

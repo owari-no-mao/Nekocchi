@@ -6,9 +6,10 @@ import { soundManager } from '../utils/audio';
 interface ZukanModalProps {
   unlockedList: CatEvolutionId[];
   onClose: () => void;
+  onOpenEvolutionTree?: () => void;
 }
 
-export const ZukanModal: React.FC<ZukanModalProps> = ({ unlockedList, onClose }) => {
+export const ZukanModal: React.FC<ZukanModalProps> = ({ unlockedList, onClose, onOpenEvolutionTree }) => {
   const [selectedCatId, setSelectedCatId] = useState<CatEvolutionId>(unlockedList[0] || 'cat_egg');
   const [viewTab, setViewTab] = useState<'grid' | 'tree'>('grid');
 
@@ -35,14 +36,25 @@ export const ZukanModal: React.FC<ZukanModalProps> = ({ unlockedList, onClose })
         </div>
 
         <div className="flex items-center gap-1.5">
+          {onOpenEvolutionTree && (
+            <button
+              onClick={() => {
+                soundManager.playConfirm();
+                onOpenEvolutionTree();
+              }}
+              className="text-xs text-emerald-300 hover:text-white px-2.5 py-1 bg-emerald-950/60 hover:bg-emerald-900/80 rounded-lg border border-emerald-500/40 transition-colors flex items-center gap-1 font-pixel"
+            >
+              <span>🌿</span> 系統ツリー
+            </button>
+          )}
           <button
             onClick={() => {
               soundManager.playSelect();
               setViewTab(viewTab === 'grid' ? 'tree' : 'grid');
             }}
-            className="text-xs text-amber-300 hover:text-white px-2.5 py-1 bg-slate-800 rounded-lg border border-slate-700 transition-colors"
+            className="text-xs text-amber-300 hover:text-white px-2 py-1 bg-slate-800 rounded-lg border border-slate-700 transition-colors"
           >
-            {viewTab === 'grid' ? '進化分岐ツリー' : '図鑑グリッド'}
+            {viewTab === 'grid' ? 'テキスト系統' : '図鑑グリッド'}
           </button>
           <button
             onClick={() => {
@@ -79,14 +91,23 @@ export const ZukanModal: React.FC<ZukanModalProps> = ({ unlockedList, onClose })
                       : 'border-slate-800 bg-slate-950/60 opacity-60 hover:opacity-80'
                   }`}
                 >
-                  <div className="w-10 h-10 flex items-center justify-center relative">
+                  <div className="w-10 h-10 flex items-center justify-center relative rounded-lg overflow-hidden">
                     {unlocked ? (
-                      <CatSprite catId={sp.id} action="idle" className="scale-[0.55] -my-3" />
+                      sp.aiImageUrl ? (
+                        <img
+                          src={sp.aiImageUrl}
+                          alt={sp.name}
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : (
+                        <CatSprite catId={sp.id} action="idle" className="scale-[0.55] -my-3" />
+                      )
                     ) : (
                       <span className="text-xl text-slate-600 font-pixel">？</span>
                     )}
                   </div>
-                  <span className="text-[10px] truncate max-w-full text-center mt-1 text-slate-300">
+                  <span className="text-[10px] truncate max-w-full text-center mt-1 text-slate-300 font-pixel">
                     {unlocked ? sp.name : '？？？'}
                   </span>
                 </button>
@@ -95,11 +116,20 @@ export const ZukanModal: React.FC<ZukanModalProps> = ({ unlockedList, onClose })
           </div>
 
           {/* Species Detail Panel */}
-          <div className="w-full md:w-60 bg-slate-950/80 rounded-xl p-3 border border-slate-800 flex flex-col justify-between overflow-y-auto">
+          <div className="w-full md:w-64 bg-slate-950/80 rounded-xl p-3 border border-slate-800 flex flex-col justify-between overflow-y-auto">
             {isSelectedUnlocked ? (
               <div className="flex flex-col items-center text-center">
-                <div className="w-24 h-24 flex items-center justify-center bg-slate-900 rounded-xl border border-slate-800 p-2 mb-2">
-                  <CatSprite catId={selectedSpecies.id} action="idle" className="scale-90" />
+                <div className="w-32 h-32 flex items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 p-2 mb-2 relative overflow-hidden shadow-inner">
+                  {selectedSpecies.aiImageUrl ? (
+                    <img
+                      src={selectedSpecies.aiImageUrl}
+                      alt={selectedSpecies.name}
+                      className="w-full h-full object-cover rounded-xl"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <CatSprite catId={selectedSpecies.id} action="idle" className="scale-95" />
+                  )}
                 </div>
                 <div className="text-xs font-pixel text-amber-400 mb-0.5">{selectedSpecies.title}</div>
                 <h3 className="text-sm font-bold text-white mb-2">{selectedSpecies.name}</h3>

@@ -72,6 +72,22 @@ export const INITIAL_STATE: PetGameState = {
   streakDays: 1,
   dailyTasks: generateDailyTasks(),
   careHistory: [],
+  memories: [
+    {
+      id: 'mem_initial_egg',
+      timestamp: Date.now(),
+      dateStr: getTodayString(),
+      inGameDay: 0,
+      inGameHour: 10,
+      category: 'evolution',
+      title: '運命の出会い・たまごがやってきた！',
+      story: '手のひらに収まるふしぎなたまご。耳をすますと小さくトクトクと鼓動が聞こえます。優しく温めて育てていこう！',
+      catId: 'cat_egg',
+      catName: 'たまごちゃん',
+      weight: 0.5,
+      sticker: '🥚',
+    },
+  ],
 
   soundEnabled: true,
 };
@@ -81,6 +97,11 @@ export function loadSavedGame(): PetGameState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return INITIAL_STATE;
     const parsed = JSON.parse(raw) as PetGameState;
+
+    // Ensure memories array exists for older save data
+    const existingMemories = Array.isArray(parsed.memories) && parsed.memories.length > 0
+      ? parsed.memories
+      : INITIAL_STATE.memories;
 
     // Daily rollover check
     const today = getTodayString();
@@ -101,6 +122,7 @@ export function loadSavedGame(): PetGameState {
 
       return {
         ...parsed,
+        memories: existingMemories,
         currentDateStr: today,
         streakDays: newStreak,
         dailyTasks: generateDailyTasks(),
@@ -108,7 +130,10 @@ export function loadSavedGame(): PetGameState {
       };
     }
 
-    return parsed;
+    return {
+      ...parsed,
+      memories: existingMemories,
+    };
   } catch (err) {
     console.error('Failed to load saved pet game:', err);
     return INITIAL_STATE;

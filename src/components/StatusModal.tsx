@@ -48,38 +48,56 @@ export const StatusModal: React.FC<StatusModalProps> = ({ state, onClose, onRena
         </button>
       </div>
 
-      {/* Cat Profile Summary */}
+      {/* Cat Profile Summary with optional AI 3D Image */}
       <div className="bg-slate-800/80 p-3 rounded-xl border border-slate-700 mb-3">
-        <div className="flex items-center justify-between mb-1">
-          {editingName ? (
-            <form onSubmit={handleSaveName} className="flex gap-1 items-center">
-              <input
-                type="text"
-                value={tempName}
-                maxLength={10}
-                onChange={(e) => setTempName(e.target.value)}
-                className="bg-slate-950 px-2 py-0.5 text-xs rounded border border-amber-500/50 text-white w-28 focus:outline-none"
-                autoFocus
+        <div className="flex items-center gap-3 mb-2">
+          {currentSpecies.aiImageUrl && (
+            <div className="w-14 h-14 rounded-xl overflow-hidden border border-amber-400/40 shrink-0 shadow-md">
+              <img
+                src={currentSpecies.aiImageUrl}
+                alt={currentSpecies.name}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
-              <button type="submit" className="text-[10px] bg-amber-500 text-slate-950 font-pixel px-1.5 py-0.5 rounded">
-                決定
-              </button>
-            </form>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm text-amber-300">{state.catName}</span>
-              <button
-                onClick={() => setEditingName(true)}
-                className="text-[10px] text-slate-400 hover:text-slate-200"
-                title="なまえを変更"
-              >
-                ✏️
-              </button>
             </div>
           )}
-          <span className="text-xs font-pixel text-slate-300">
-            {currentSpecies.name}
-          </span>
+
+          <div className="flex-1 overflow-hidden">
+            <div className="flex items-center justify-between mb-0.5">
+              {editingName ? (
+                <form onSubmit={handleSaveName} className="flex gap-1 items-center">
+                  <input
+                    type="text"
+                    value={tempName}
+                    maxLength={10}
+                    onChange={(e) => setTempName(e.target.value)}
+                    className="bg-slate-950 px-2 py-0.5 text-xs rounded border border-amber-500/50 text-white w-24 focus:outline-none"
+                    autoFocus
+                  />
+                  <button type="submit" className="text-[10px] bg-amber-500 text-slate-950 font-pixel px-1.5 py-0.5 rounded">
+                    決定
+                  </button>
+                </form>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-sm text-amber-300 truncate">{state.catName}</span>
+                  <button
+                    onClick={() => setEditingName(true)}
+                    className="text-[10px] text-slate-400 hover:text-slate-200"
+                    title="なまえを変更"
+                  >
+                    ✏️
+                  </button>
+                </div>
+              )}
+              <span className="text-[11px] font-pixel text-slate-300 truncate">
+                {currentSpecies.name}
+              </span>
+            </div>
+            <div className="text-[10px] font-pixel text-amber-400/90 truncate">
+              {currentSpecies.title}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-2 mt-2 pt-2 border-t border-slate-700/60 text-center">
